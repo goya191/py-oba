@@ -102,22 +102,32 @@ def full_next_arriv(route_id, stop_id):
     return predicted_times
 
 
-def get_and_print_route_info(route_id, stop_id, title):
-    route_info = full_next_arriv(route_id, stop_id)
-    formatters.print_py_dt_list(route_info, title=title)
+# def get_and_print_route_info(route_id, stop_id, title):
+#     route_info = full_next_arriv(route_id, stop_id)
+#     formatters.print_py_dt_list(route_info, title=title)	
+
+"""
+Special purpose helper functions - get one route each
+"""
+
+def get_bus():
+    rt_36_stop = stops[HOME_TO_WORK][BUS]
+    rt_36_id = routes[HOME_TO_WORK][BUS]
+    return full_next_arriv(route_id=rt_36_id, stop_id=rt_36_stop)
+
+def get_link():
+    link_stop = stops[HOME_TO_WORK][LINK]
+    link_route = routes[HOME_TO_WORK][LINK]
+    return full_next_arriv(route_id=link_route, stop_id=link_stop)
 
 def main():
     now = datetime.datetime.now()
     formatters.print_py_dt_list([now], "Current time")
-    # get route 36
-    rt_36_stop = stops[HOME_TO_WORK][BUS]
-    rt_36_id = routes[HOME_TO_WORK][BUS]
-    get_and_print_route_info(route_id=rt_36_id, stop_id=rt_36_stop, title="Route 36")
 
-    # get LINK schedule
-    link_stop = stops[HOME_TO_WORK][LINK]
-    link_route = routes[HOME_TO_WORK][LINK]
-    get_and_print_route_info(route_id=link_route, stop_id=link_stop, title="LINK light rail")
+    bus_rounte_info = get_bus()
+    formatters.print_py_dt_list(bus_rounte_info, title="Route 36")
+    link_route_info = get_link()
+    formatters.print_py_dt_list(link_route_info, title="LINK light rail")
 
 
 if __name__ == "__main__":
