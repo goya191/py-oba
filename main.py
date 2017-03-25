@@ -8,6 +8,7 @@ import datetime
 
 import timeit
 
+import pdb
 
 #3rd party - xmltodict
 import xmltodict
@@ -30,6 +31,7 @@ stops = {
     HOME_TO_WORK : {BUS : '1_3500', LINK : '1_99240'},
     WORK_TO_HOME : {BUS : '1_1530', LINK : '1_621'}
 }
+
 routes = {
     HOME_TO_WORK : {BUS : '1_100210', LINK : '40_100479'},
     WORK_TO_HOME : {BUS : '', LINK : ''}
@@ -85,9 +87,8 @@ def find_next_arrival(stop_id, route_id):
     :param route_id:  ID of route
     :return: Tuple of times.
     """
-    stop_id = stops[HOME_TO_WORK][BUS]
     data = get_arriv_for_stop(stop_id)
-    #XXX hack, to work around xml parse or inconsistent response from OBA library
+    # hack to work around xml parse or inconsistent response from OBA library
     arrivals = None
     if data.has_key('entry'):
         arrivals = data['entry']['arrivalsAndDepartures']['arrivalAndDeparture']
@@ -95,21 +96,13 @@ def find_next_arrival(stop_id, route_id):
         arrivals = data['arrivalsAndDepartures']['arrivalAndDeparture']
     else:
         raise ValueError("Expected key not present from One bus response!" )
-    #[(x, y) for x in [1,2,3] for y in [3,1,4] if x != y]
+    # filter by route id
     filtered_routes = [route for route in arrivals if route[ROUTE_ID] == route_id ]
+    # take out invalid date
+    #raise ValueError('test')
+    filtered_routes = [route for route in filtered_routes if route.get('predictedArrivalTime') != u'0']
     return filtered_routes
 
-
-
-# TODO: 
-# upcoming_time=datetime.timedelta(minutes=30), prev_time=datetime.timedelta(minutes=5)):
-# def close_to_time(dt_li, spec_time=datetime.datetime.now(), 
-#     close_to=datetime.timedelta(minutes=30)):
-#     new_li = []
-#     for dt_item in dt_li:
-#         if abs(dt_item - spec_time) <= close_to:
-#             new_li.append(dt_item)
-#     return new_li
 
 def close_to_time(dt_li, spec_time=datetime.datetime.now(), 
     close_to=datetime.timedelta(minutes=30)):
@@ -130,7 +123,6 @@ def get_sched_arriv_dts(stop_id):
     #filter! 
     arriv_dts = query.query_to_dts(qr)
     return close_to_time(arriv_dts)
-    # incomplete
 
 def route_to_string(route, keys=DEFAULT_ROUTE_KEYS, special_actions=SPECIAL_KEY_ACTION):
     route_strs = []
@@ -151,12 +143,12 @@ def full_next_arriv(route_id, stop_id):
     for f in filtered_route_info:
         temp = f['predictedArrivalTime']
         predicted_times.append(query.ts_to_dt(temp))
-    formatters.print_py_dt_list(predicted_times, title="Route 36")
+    return predicted_times
 
-def full_schedule(stop_id):
-    res = get_sched_arriv_dts(stop_id)
-    #print formatters.SEP
-    formatters.print_py_dt_list(res, "LINK light rail")
+
+def get_and_print_route_info(route_id, stop_id, title):
+    route_info = full_next_arriv(route_id, stop_id)
+    formatters.print_py_dt_list(route_info, title=title)
 
 def main():
     now = datetime.datetime.now()
@@ -164,11 +156,13 @@ def main():
     # get route 36
     rt_36_stop = stops[HOME_TO_WORK][BUS]
     rt_36_id = routes[HOME_TO_WORK][BUS]
-    full_next_arriv(route_id=rt_36_id, stop_id=rt_36_stop)
+    get_and_print_route_info(route_id=rt_36_id, stop_id=rt_36_stop, title="Route 36")
 
     # get LINK schedule
     link_stop = stops[HOME_TO_WORK][LINK]
-    full_schedule(stop_id=link_stop)
+    link_route = routes[HOME_TO_WORK][LINK]
+    get_and_print_route_info(route_id=link_route, stop_id=link_stop, title="LINK light rail")
+
 
 if __name__ == "__main__":
     import pdb, traceback, sys
