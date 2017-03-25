@@ -24,10 +24,10 @@ class TestApi(unittest.TestCase):
     #     data = OBA.make_request(url)
     #     assert False
 
-    def test_get_stop_info(self):
-        stop_id = stops[HOME_TO_WORK][BUS]
-        data = OBA.get_stop_arrival_info(stop_id)
-        assert(data)
+    #def test_get_stop_info(self):
+    #    stop_id = stops[HOME_TO_WORK][BUS]
+    #    data = OBA.get_stop_arrival_info(stop_id)
+    #    assert(data)
 
     def test_get_arriv_for_stop(self):
         stop_id = stops[HOME_TO_WORK][BUS]

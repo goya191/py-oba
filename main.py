@@ -59,21 +59,6 @@ def get_sched_for_stop(stop_id):
     data = query.make_request(url)
     return data
 
-def filter_down_routes(route, keys=DEFAULT_ROUTE_KEYS, special_actions=SPECIAL_KEY_ACTION):
-   filtered_routes = {}
-   for k in keys:
-       if route.has_key(k):
-           temp = (route[k] if k not in special_actions else special_actions[k](route[k]))
-           filtered_routes[k] = temp
-   return filtered_routes
-
-def route_to_string(route, keys=DEFAULT_ROUTE_KEYS, special_actions=SPECIAL_KEY_ACTION):
-    route_strs = []
-    for k in keys:
-        if route.has_key(k):
-            temp = (route[k] if k not in special_actions else special_actions[k](route[k]))
-            route_strs.append(temp)
-    return route_strs
 
     #item = [{route_key : route[route_key]} for route_key in display_keys if k route.has_key(k)]
 
@@ -115,8 +100,6 @@ def find_next_arrival(stop_id, route_id):
     return filtered_routes
 
 
-def get_next_two_arriv(arriv_info):
-    now = datetime.datetime.now()
 
 # TODO: 
 # upcoming_time=datetime.timedelta(minutes=30), prev_time=datetime.timedelta(minutes=5)):
@@ -149,6 +132,14 @@ def get_sched_arriv_dts(stop_id):
     return close_to_time(arriv_dts)
     # incomplete
 
+def route_to_string(route, keys=DEFAULT_ROUTE_KEYS, special_actions=SPECIAL_KEY_ACTION):
+    route_strs = []
+    for k in keys:
+        if route.has_key(k):
+            temp = (route[k] if k not in special_actions else special_actions[k](route[k]))
+            route_strs.append(temp)
+    return route_strs
+    
 #
 # Full functions
 #

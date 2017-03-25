@@ -6,6 +6,7 @@ Only checks 4 stops or so, all hardcoded.
 
 import datetime
 
+import time
 import timeit
 
 import urllib2
@@ -27,11 +28,6 @@ BASE_Q_STRING = "?key=TEST"
 #API commands
 SCHED_FOR_STOP = "where/schedule-for-stop/{}.xml"
 AR_FOR_STOP = "where/arrivals-and-departures-for-stop/{stop_id}.xml"
-
-def get_stop_info(stop_name):
-    url = get_sched_url(stop_name)
-    data = make_request(url)
-    return data
 
 
 def get_sched_url(stop_name):
@@ -62,13 +58,46 @@ def get_arr_url(stop_id):
 #
 # OBA API calls
 #
-def make_request(query_str):
-    req = urllib2.urlopen(query_str)
-    if req.getcode() != 200:
-        raise ValueError("URL request on {}\n status: {} - {}" (query_str, req.getcode(), req.msg))
-    #xxx readlines would be better here...
-    return parse_xml(req.read())
+def send_request(query_str):
+    """
+    Attempts request, catches recoverable error, 
+    returns error or successful object request
+    """
+    req = None
+    try:
+        req = urllib2.urlopen(query_str)
+    except urllib2.URLError as e:
+         return e.code
+    return req
+    
 
+def make_request(query_str, tries=3):
+    """
+    attempt up to # of tries to contact OBA api
+    raise IOError if fail
+    """
+    if tries == 0:
+        raise IOError("exceeded tries in make_request")
+    req = send_request(query_str)
+    if type(req) == int:
+        # the request failed for some reason
+        if req == 429:
+            # retry recoverable error, make recursive call
+            time.sleep(0.1)
+            return make_request(query_str, tries - 1 )
+
+    http_code = req.getcode()
+    
+    if http_code == 200:
+        return parse_xml(req.read())
+    else:
+        raise ValueError("URL request on {}\n status: {} - {}" (query_str, req.getcode(), req.msg))
+    # should not get here
+    raise RuntimeError("unexpected path from make_requst!")
+    
+
+    
+    
 def parse_xml(xml_data):
     """
     uses library, ignores 'response'
@@ -102,10 +131,13 @@ def filter_sched_for_stop(stop_dict):
 #
 # Datetime
 #
-def unix_time(dt):
-    epoch = datetime.datetime.utcfromtimestamp(0)
-    delta = dt - epoch
-    return delta.total_seconds()
+
+def ts_to_isoformat(ts):
+    if ts == None or ts == 0:
+        return None
+    dt = ts_to_dt(ts)
+    return dt.isoformat()
+    
 
 def dt_to_unix(dt):
     return unix_time(dt) * 1000.0
@@ -115,12 +147,6 @@ def ts_to_dt(ts):
     XXX blind cast
     """
     return datetime.datetime.fromtimestamp(int(ts)/1000)
-
-def ts_to_isoformat(ts):
-    if ts == None or ts == 0:
-        return None
-    dt = ts_to_dt(ts)
-    return dt.isoformat()
 
 
 # List operations
