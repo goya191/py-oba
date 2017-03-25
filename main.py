@@ -15,7 +15,7 @@ import xmltodict
 import pprint
 
 import query
-from query import get_sched_url, make_request
+from query import make_request
 import formatters
 #
 # keywords
@@ -42,41 +42,14 @@ DEFAULT_ROUTE_KEYS = \
      'scheduledArrivalTime', 'scheduledDepartureTime',
      'routeShortName' )
 
-SPECIAL_KEY_ACTION = {
-    "predictedArrivalTime" : query.ts_to_isoformat,
-    "predictedDepartureTime" : query.ts_to_isoformat,
-    "scheduledArrivalTime" : query.ts_to_isoformat,
-    "scheduledDepartureTime" : query.ts_to_isoformat
-}
-
-
 def get_arriv_for_stop(stop_id):
     url = query.get_arr_url(stop_id)
     data = query.make_request(url)
     return data
 
-# s['entry']['stopRouteSchedules']['stopRouteSchedule'][u'stopRouteDirectionSchedules']['stopRouteDirectionSchedule']['scheduleStopTimes']['scheduleStopTime']
-def get_sched_for_stop(stop_id):
-    url = query.get_sched_url(stop_id)
-    data = query.make_request(url)
-    return data
 
 
     #item = [{route_key : route[route_key]} for route_key in display_keys if k route.has_key(k)]
-
-def routes_to_string(route_list, keys=DEFAULT_ROUTE_KEYS, special_actions=SPECIAL_KEY_ACTION):
-    """
-    :param route_list:
-    :param keys:
-    :param special_actions: - dictionary of key to special key actions
-        {keyname : function pointer}
-    :return:
-        list of strings
-    """
-    str_list = []
-    for route in route_list:
-        str_list.append(route_to_string(route=route, keys=keys, special_actions=special_actions))
-    return tuple(str_list)
 
 
 def find_next_arrival(stop_id, route_id):
@@ -104,16 +77,6 @@ def find_next_arrival(stop_id, route_id):
     return filtered_routes
 
 
-def close_to_time(dt_li, spec_time=datetime.datetime.now(), 
-    close_to=datetime.timedelta(minutes=30)):
-    new_li = []
-    for dt_item in dt_li:
-        diff = dt_item - spec_time
-        if diff >= datetime.timedelta(seconds=0) and diff <= close_to:
-        #if dt_item - spec_time <= close_to:
-            new_li.append(dt_item)
-    return new_li
-
 def get_sched_arriv_dts(stop_id):
     """
     Entire Link operation query
@@ -124,14 +87,7 @@ def get_sched_arriv_dts(stop_id):
     arriv_dts = query.query_to_dts(qr)
     return close_to_time(arriv_dts)
 
-def route_to_string(route, keys=DEFAULT_ROUTE_KEYS, special_actions=SPECIAL_KEY_ACTION):
-    route_strs = []
-    for k in keys:
-        if route.has_key(k):
-            temp = (route[k] if k not in special_actions else special_actions[k](route[k]))
-            route_strs.append(temp)
-    return route_strs
-    
+
 #
 # Full functions
 #

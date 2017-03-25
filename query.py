@@ -114,29 +114,12 @@ def parse_arival_time(stop_time_dict):
 # Filtering
 #
 
-def key_from_list(li, key):
-    """
-    Returns the specified key out of the list of dicts 
-    """
-    new_list = []
-    for dict_item in li:
-        temp = dict_item.get(key)
-        if temp is not None:
-            new_list.append(temp)
-    return new_list
-
 def filter_sched_for_stop(stop_dict):
     return stop_dict['entry']['stopRouteSchedules']['stopRouteSchedule'][u'stopRouteDirectionSchedules']['stopRouteDirectionSchedule']['scheduleStopTimes']['scheduleStopTime']
 
 #
 # Datetime
 #
-
-def ts_to_isoformat(ts):
-    if ts == None or ts == 0:
-        return None
-    dt = ts_to_dt(ts)
-    return dt.isoformat()
     
 
 def dt_to_unix(dt):
@@ -148,19 +131,3 @@ def ts_to_dt(ts):
     """
     return datetime.datetime.fromtimestamp(int(ts)/1000)
 
-
-# List operations
-
-def ts_list_to_dates(ts_list):
-    new_li = []
-    for item in ts_list:
-        new_li.append(ts_to_dt(item))
-    return new_li
-
-#
-# full operations
-#
-def query_to_dts(query_results):
-    li = filter_sched_for_stop(query_results)
-    ts_li = key_from_list(li, 'arrivalTime')
-    return ts_list_to_dates(ts_li)
