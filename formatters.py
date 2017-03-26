@@ -13,10 +13,12 @@ def build_time_str(py_dt):
     return beg_str + " " + am_pm
 # list operations
 
-def print_py_dt_list(py_dt_list, title=None):
+def fmt_py_dt_list(py_dt_list, title=None):
+    ret_str = ""
     if title is not None:
-    	print SEP
-        print title
-        print SEP
+    	ret_str += SEP + '\n'
+        ret_str += title + '\n'
+        ret_str += SEP + '\n'
     for py_dt in py_dt_list:
-        pprint.pprint(build_time_str(py_dt))
+        ret_str += pprint.pformat(build_time_str(py_dt)) + '\n'
+    return ret_str

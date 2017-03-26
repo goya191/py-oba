@@ -122,12 +122,12 @@ def get_link():
 
 def main():
     now = datetime.datetime.now()
-    formatters.print_py_dt_list([now], "Current time")
+    print formatters.fmt_py_dt_list([now], "Current time")
 
     bus_rounte_info = get_bus()
-    formatters.print_py_dt_list(bus_rounte_info, title="Route 36")
+    print formatters.fmt_py_dt_list(bus_rounte_info, title="Route 36")
     link_route_info = get_link()
-    formatters.print_py_dt_list(link_route_info, title="LINK light rail")
+    print formatters.fmt_py_dt_list(link_route_info, title="LINK light rail")
 
 
 if __name__ == "__main__":
