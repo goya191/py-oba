@@ -16,7 +16,7 @@ def build_time_str(py_dt):
 def fmt_py_dt_list(py_dt_list, title=None):
     ret_str = ""
     if title is not None:
-    	ret_str += SEP + '\n'
+        ret_str += SEP + '\n'
         ret_str += title + '\n'
         ret_str += SEP + '\n'
     for py_dt in py_dt_list:

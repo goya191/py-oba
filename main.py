@@ -101,11 +101,6 @@ def full_next_arriv(route_id, stop_id):
         predicted_times.append(query.ts_to_dt(temp))
     return predicted_times
 
-
-# def get_and_print_route_info(route_id, stop_id, title):
-#     route_info = full_next_arriv(route_id, stop_id)
-#     formatters.print_py_dt_list(route_info, title=title)	
-
 """
 Special purpose helper functions - get one route each
 """
